@@ -101,8 +101,6 @@ router.post('/hash', (request, response) => {
   const {invoiceId, hash} = request.body
   invoice.storeOnBlockchain(invoiceId, hash)
     .then(payload => {
-      console.log('done, got payload')
-      console.log(payload)
       return successResponse(response, `Stored Invoice ID: '${invoiceId}' with hash '${hash}'`, payload);
     })
     .catch(error => {

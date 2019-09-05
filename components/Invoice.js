@@ -20,11 +20,6 @@ class Invoice {
         this.abi = contract.abi
         this.bytecode = contract.bytecode
         this.contract = new this.web3.eth.Contract(contract.abi, this.contractAddress)
-        // this.storeOnBlockchain('21212', '0x12312312321')
-          // this.existsOnBlockchain('1')
-        // this.sendTransaction('0x7f7465737432000000000000000000000000000000000000000000000000000000600057')
-        //   .then(console.log)
-        //   .catch(console.log)
       })
       .catch(console.log)
   }
@@ -35,21 +30,10 @@ class Invoice {
         const filePath = path.resolve(path.join(`./contracts/${contract}.json`))
         const file = fs.readFileSync(filePath, 'utf8');
         const rawContract = JSON.parse(file)
-        resolve({
-          abi: rawContract.abi,
-          bytecode: rawContract.bytecode
-        })
+        return resolve({ abi: rawContract.abi, bytecode: rawContract.bytecode });
       } catch (error) {
-        reject(error)
+        return reject(error);
       }
-    })
-  }
-
-  timeout(ms) {
-    return new Promise( (resolve, reject) => {
-      timeout(()=>{
-        resolve({})
-      }, ms)
     })
   }
 
@@ -112,28 +96,25 @@ class Invoice {
     return new Promise((resolve, reject) => {
       this.contract.methods.getInvoiceID(hash).call({from : this.publicKey})
         .then(hash => {
-          resolve(hash)
+          return resolve(hash);
         })
         .catch(error => {
-          reject(error)
+          return reject(error);
         })
     })
-
   }
 
   existsOnBlockchain(hash) {
     return new Promise((resolve, reject) => {
       this.contract.methods.isHashExists(hash).call({from : this.publicKey})
         .then(bool => {
-          resolve(bool)
+          return resolve(bool);
         })
         .catch(error => {
-          reject(error)
+          return reject(error);
         })
     })
-
   }
-
 
 
 
