@@ -64,7 +64,7 @@ router.get('/decode/:input', (request, response) => {
     })
 })
 
-router.get('/decoded-invoice', (request, response) => {
+router.get('/contract', (request, response) => {
   invoice.readContract('invoice')
     .then(contract => {
       const decoder = new InputDataDecoder(contract.abi);
@@ -90,21 +90,23 @@ router.get('/isHash/:hash', (request, response) => {
   const {hash} = request.params
   invoice.existsOnBlockchain(hash)
     .then(payload => {
-      return successResponse(response, `Check if ${hash} exists`, payload)
+      return successResponse(response, `Check if ${hash} exists`, payload);
     })
     .catch(error => {
-      return errorResponse(response, error)
+      return errorResponse(response, error);
     })
 })
 
 router.post('/hash', (request, response) => {
   const {invoiceId, hash} = request.body
-  invoice.storeOnBlockchain(orderId, hash)
+  invoice.storeOnBlockchain(invoiceId, hash)
     .then(payload => {
-      return successResponse(response, `Stored Invoice ID: ${invoiceId} on blockchain`, payload)
+      console.log('done, got payload')
+      console.log(payload)
+      return successResponse(response, `Stored Invoice ID: '${invoiceId}' with hash '${hash}'`, payload);
     })
     .catch(error => {
-      return errorResponse(response, error)
+      return errorResponse(response, error);
     })
 })
 
