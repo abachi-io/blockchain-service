@@ -78,10 +78,10 @@ class Invoice {
           .then(signedTransaction => {
             this.web3.eth.sendSignedTransaction(signedTransaction.rawTransaction)
               .then(receipt => {
-                console.log(receipt)
+                return resolve(receipt);
               })
               .catch(error => {
-                console.log('Send error ', error)
+                return reject(error);
               })
           })
           .catch(error => {
@@ -100,10 +100,10 @@ class Invoice {
        const encodedABI  = this.contract.methods.addInvoice(invoiceId, hash).encodeABI()
        this.sendTransaction(encodedABI)
         .then(receipt => {
-          resolve(receipt)
+          return resolve(receipt);
         })
         .catch(error => {
-          reject(error)
+          return reject(error);
         })
     })
   }
