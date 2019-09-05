@@ -20,11 +20,10 @@ const server = app.listen(port, () => {
 
 mongoose.connect('mongodb://127.0.0.1/lucaHash', { useNewUrlParser: true });
   mongoose.connection.on('connected', () => {
-  console.log(`[!] Connected to MongoD`);
+  console.log(chalk.green(`[+] Connected to MongoDB`));
 });
 
 mongoose.set('useFindAndModify', false);
-
 
 mongoose.connection.on('error', (err) => {
   console.log(chalk.red(`[X] ${err}`))
