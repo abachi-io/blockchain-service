@@ -39,6 +39,29 @@ router.get('/transaction/:hash', (request, response) => {
     })
 })
 
+router.get('/transactionReceipt/:hash', (request, response) => {
+  const {hash} = request.params
+  web3.eth.getTransactionReceipt(hash)
+  .then(receipt => {
+    return successResponse(response, `Receipt for transaction ${hash}`, receipt)
+  })
+  .catch(error => {
+    console.log(error)
+    return errorResponse(response, error)
+  })
+
+})
+
+router.get('/pendingTransactions', (request, response) => {
+  web3.web3Http.eth.getPendingTransactions()
+  .then(block => {
+    return successResponse(response, `${block.length}`, block)
+  })
+  .catch(error => {
+    console.log(error)
+    return errorResponse(response, error)
+  })})
+
 router.get('/block/:blockNumber', (request, response) => {
   const { blockNumber } = request.params
   web3.web3Http.eth.getBlock(blockNumber)
