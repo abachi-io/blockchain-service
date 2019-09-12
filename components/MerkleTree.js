@@ -38,7 +38,7 @@ class MarkelTree {
   concatHash(left, right) {
     if(!left) throw new Error("The concat function expects two hash arguments, the first was not receieved.");
     if(!right) throw new Error("The concat function expects two hash arguments, the second was not receieved.");
-    return sha256(`${left}${right}`);
+    return this.sha256(`${left}${right}`);
   }
 
   hashProof(node, proof) {
