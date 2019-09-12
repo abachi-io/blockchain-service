@@ -3,8 +3,7 @@ const Schema = mongoose.Schema;
 
 const invoiceSchema = new Schema({
   invoiceId: String,
-  latestHash: String,
-  modified: {type: Boolean, default: false},
+  merkelRoot: String,
   history: Array
 });
 
