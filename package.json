@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +16,7 @@
     "dotenv": "^8.1.0",
     "ethereum-input-data-decoder": "^0.2.0",
     "express": "^4.17.1",
+    "jest": "^24.9.0",
     "mongoose": "^5.6.12",
     "request": "^2.88.0",
     "web3": "^1.2.1"
