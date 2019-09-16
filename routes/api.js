@@ -39,6 +39,7 @@ router.get('/ping', (request, response) => {
 
 router.get('/proof/data/:key', (request, response) => {
     const { key } = request.params
+    if(!key) throw(`Empty 'key' sent in query parameter`)
     proof.get(key)
       .then(payload => {
         return successResponse(response, `CMD: get(${key})`, payload);
@@ -50,6 +51,7 @@ router.get('/proof/data/:key', (request, response) => {
 
 router.post('/proof/', (request, response) => {
   const { key, store } = request.body;
+  if(!key || !store) throw(`Body paramater 'key' or 'store' not sent`)
   proof.set(key, store)
     .then(payload => {
       return successResponse(response, `CMD: set(${key}, ${store})`, payload);
@@ -62,7 +64,8 @@ router.post('/proof/', (request, response) => {
 
 router.delete('/proof/', (request, response) => {
   const { key } = request.body;
-  proof.remove(key, store)
+  if(!key ) throw(`Body paramater 'key' not sent`)
+  proof.remove(key)
     .then(payload => {
       return successResponse(response, `CMD: remove(${key})`, payload);
     })
@@ -73,6 +76,7 @@ router.delete('/proof/', (request, response) => {
 
 router.get('/proof/exists/:key', (request, response) => {
     const { key } = request.params
+    if(!key) throw(`Empty 'key' sent in query parameter`)
     proof.exists(key)
       .then(payload => {
         return successResponse(response, `CMD: exists(${key})`, payload);
@@ -84,6 +88,7 @@ router.get('/proof/exists/:key', (request, response) => {
 
 router.get('/proof/timestamp/:key', (request, response) => {
     const { key } = request.params
+    if(!key) throw(`Empty 'key' sent in query parameter`)
     proof.timestamp(key)
       .then(payload => {
         return successResponse(response, `CMD: timestamp(${key})`, payload);
