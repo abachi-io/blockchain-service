@@ -35,16 +35,29 @@ router.get('/ping', (request, response) => {
   return successResponse(response, 'pong')
 })
 
+router.get('/balance', (request, response) => {
+  web3.web3Http.eth.getBalance(process.env.PUBLIC_KEY)
+    .then(balance => {
+      return successResponse(response, `Address: ${process.env.PUBLIC_KEY}`, balance);
+    })
+    .catch(error => {
+      console.log(error)
+      return errorResponse(response, error);
+    })
+})
+
 // Proof Contract \\
 
 router.get('/proof/data/:key', (request, response) => {
     const { key } = request.params
+    console.log(key)
     if(!key) throw(`Empty 'key' sent in query parameter`)
     proof.get(key)
       .then(payload => {
         return successResponse(response, `CMD: get(${key})`, payload);
       })
       .catch(error => {
+        console.log(error)
         return errorResponse(response, error);
       })
 })
@@ -57,6 +70,7 @@ router.post('/proof/', (request, response) => {
       return successResponse(response, `CMD: set(${key}, ${store})`, payload);
     })
     .catch(error => {
+      console.log(error)
       return errorResponse(response, error);
     })
 

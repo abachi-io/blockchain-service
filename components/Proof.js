@@ -28,6 +28,22 @@ class Proof {
   readContract(contract) {
     return new Promise((resolve, reject) => {
       try {
+        const filePath = path.resolve(path.join(`./contracts/${contract}.json`))
+        const file = fs.readFileSync(filePath, 'utf8');
+        const rawContract = JSON.parse(file)
+        console.log(rawContract)
+        console.log({ abi: rawContract.abi, bytecode: rawContract.bytecode })
+        return resolve({ abi: rawContract.abi, bytecode: rawContract.bytecode });
+      } catch (error) {
+        console.log(error)
+        return reject(error);
+      }
+    })
+  }
+
+  readContract2(contract) {
+    return new Promise((resolve, reject) => {
+      try {
         const file = `${contract}.sol`
         const path = `./contracts/${file}`
         const source = fs.readFileSync(path, 'UTF-8')
@@ -103,26 +119,38 @@ class Proof {
 
   set(key, store) {
     return new Promise((resolve, reject) => {
-       const encodedABI  = this.contract.methods.set(key, store).encodeABI()
-       this.sendTransaction(encodedABI)
-        .then(receipt => {
-          return resolve(receipt);
+//      this.contract.methods.set('123', '321').call()
+       this.contract.methods.set(key, store).call({from : this.publicKey})
+        .then(data => {
+          this.contract.methods.get(key).call({from : this.publicKey})
+            .then(console.log)
+            .catch(console.log)
         })
-        .catch(error => {
-          return reject(error);
-        })
+        .catch(console.log)
+       // const encodedABI = this.contract.methods.set(key, store).encodeABI()
+       // this.sendTransaction(encodedABI)
+       //  .then(receipt => {
+       //    return resolve(receipt);
+       //  })
+       //  .catch(error => {
+       //    return reject(error);
+       //  })
+
     })
   }
 
   get(key) {
     return new Promise((resolve, reject) => {
-      this.contract.methods.get(key).call({from : this.publicKey})
-        .then(hash => {
-          return resolve(hash);
-        })
-        .catch(error => {
-          return reject(error);
-        })
+
+      // const encodedABI = this.contract.methods.get(key).encodeABI()
+      // console.log(encodedABI)
+      // this.sendTransaction(encodedABI)
+      //  .then(receipt => {
+      //    return resolve(receipt);
+      //  })
+      //  .catch(error => {
+      //    return reject(error);
+      //  })
     })
   }
 
