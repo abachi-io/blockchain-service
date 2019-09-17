@@ -1,7 +1,6 @@
 # Luca Blockchain Service
 
-
-# Download and Run
+## Getting started
 
 ### Download and install dependencies
 `git clone https://github.com/SkyTradeInc/blockchain-service.git`
