@@ -210,30 +210,51 @@ router.post('/hash', (request, response) => {
 router.get('/deploy/contract/:file', (request, response) => {
   const { file } = request.params
   contract.compile(file)
-    .then(data => {
-      console.log(data)
-      let contract = new web3.web3Http.eth.Contract(data.abi, {from: process.env.PUBLIC_KEY, gas: 47000, data: `0x${data.bytecode}`});
-      return successResponse(response, '', contract)
-      contract.deploy({})
-        .send({}, function(error, transactionHash){ console.log })
-        .on('error', function(error){ console.log })
-        .on('transactionHash', function(transactionHash){ console.log })
-        .on('receipt', function(receipt){
-           console.log(receipt.contractAddress) // contains the new contract address
-        })
-        .on('confirmation', function(confirmationNumber, receipt){ console.log })
-        .then(function(newContractInstance){
-            console.log(newContractInstance.options.address) // instance with the new contract address
-        })
+    .then(contractData => {
+      successResponse(response, `Deployed contract`, contractData);
+        Promise.all([
+          web3.web3Http.eth.getGasPrice(),
+          web3.web3Http.eth.getBalance(process.env.PUBLIC_KEY),
+          web3.web3Http.eth.getTransactionCount(process.env.PUBLIC_KEY, 'pending')
+        ])
+        .then(data => {
+          const gasPrice = data[0]
+          const balance = data[1]
+          const nonce = data[2]
+          const transactionParams = {
+            nonce,
+            gasPrice: web3.web3Http.utils.toHex(gasPrice),
+            gasLimit: '0x47b760',
+            from: this.publicKey,
+            value: web3.web3Http.utils.toHex(0),
+            data: `0x${contractData.bytecode}`
+          }
 
-      successResponse(response, `Deployed contract`, data);
-
-    })
+          web3.web3Http.eth.accounts.signTransaction(transactionParams, process.env.PRIVATE_KEY)
+            .then(signedTransaction => {
+              console.log('signed tx:')
+              console.log(signedTransaction)
+              web3.web3Http.eth.sendSignedTransaction(signedTransaction.rawTransaction)
+                .then(receipt => {
+                  console.log(receipt);
+                })
+                .catch(error => {
+                  console.log(error);
+                })
+            })
+            .catch(error => {
+              console.log(error);
+            })
+        })
+        .catch(error => {
+          console.log(error);
+        })
+      })
     .catch(error => {
       console.log(error)
       return errorResponse(response, error);
     })
-
 })
+
 
 module.exports = router;
