@@ -1,6 +1,7 @@
 const dotenv = require('dotenv').config()
 const fs = require('fs')
 const path = require('path');
+const solc = require('solc')
 
 class Proof {
   constructor(web3) {
@@ -142,6 +143,18 @@ class Proof {
       this.contract.methods.timestamp(key).call({from : this.publicKey})
         .then(lastUpdated => {
           return resolve(lastUpdated);
+        })
+        .catch(error => {
+          return reject(error);
+        })
+    })
+  }
+
+  remove(key) {
+    return new Promise((resolve, reject) => {
+      this.contract.methods.remove(key).call({from : this.publicKey})
+        .then(bool => {
+          return resolve(bool);
         })
         .catch(error => {
           return reject(error);
