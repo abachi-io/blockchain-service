@@ -40,12 +40,38 @@ class Proof {
     })
   }
 
+  getNonce() {
+    return new Promise((resolve, reject) => {
+      Promise.all([
+        this.web3.eth.txpool.content(),
+        this.web3.eth.getTransactionCount(this.publicKey, 'pending')
+      ])
+        .then(data => {
+          const txpool = data[0]
+          let transactionCount = data[1]
+          if(txpool.pending) {
+            if(txpool.pending[this.publicKey]) {
+              transactionCount += Object.keys(txpool.pending[this.publicKey]).length
+              resolve(transactionCount)
+            } else {
+              resolve(transactionCount)
+            }
+          } else {
+            resolve(transactionCount)
+          }
+        })
+        .catch(error => {
+          return reject(error)
+        })
+    })
+  }
+
   sendTransaction(payload) {
     return new Promise((resolve, reject) => {
       Promise.all([
         this.web3.eth.getGasPrice(),
         this.web3.eth.getBalance(this.publicKey),
-        this.web3.eth.getTransactionCount(this.publicKey, 'pending')
+        this.getNonce()
       ])
       .then(data => {
         const gasPrice = data[0]
