@@ -28,7 +28,6 @@ const errorResponse = (response, message, status = 403) => {
   })
 }
 
-
 // General \\
 
 router.get('/ping', (request, response) => {
@@ -50,7 +49,6 @@ router.get('/balance', (request, response) => {
 
 router.get('/proof/data/:key', (request, response) => {
     const { key } = request.params
-    console.log(key)
     if(!key) throw(`Empty 'key' sent in query parameter`)
     proof.get(key)
       .then(payload => {
@@ -137,7 +135,6 @@ router.get('/transactionReceipt/:hash', (request, response) => {
     console.log(error)
     return errorResponse(response, error)
   })
-
 })
 
 router.get('/pendingTransactions', (request, response) => {
@@ -165,15 +162,9 @@ router.get('/block/:blockNumber', (request, response) => {
 
 router.get('/decode/:input', (request, response) => {
   const { input } = request.params
-  invoice.readContract('invoice')
-    .then(contract => {
-      const decoder = new InputDataDecoder(contract.abi);
-      const result = decoder.decodeData(input)
-      return successResponse(response, 'Decoded input', result)
-    })
-    .catch(error => {
-      return errorResponse(response, error)
-    })
+  const decoder = new InputDataDecoder(proof.abi);
+  const result = decoder.decodeData(input)
+  return successResponse(response, 'Decoded input', result)
 })
 
 router.get('/contract', (request, response) => {
@@ -221,11 +212,10 @@ router.post('/hash', (request, response) => {
 })
 
 
-router.get('/deploy/contract/:file', (request, response) => {
-  const { file } = request.params
-  contract.compile(file)
-    .then(contractData => {
-      successResponse(response, `Deployed contract`, contractData);
+
+router.get('/deploy/contract', (request, response) => {
+  // getContractEncodeABI(proof.abi,
+        const encodedABI = proof.contract.deploy({ data : proof.bytecode}).encodeABI()
         Promise.all([
           web3.web3Http.eth.getGasPrice(),
           web3.web3Http.eth.getBalance(process.env.PUBLIC_KEY),
@@ -241,13 +231,10 @@ router.get('/deploy/contract/:file', (request, response) => {
             gasLimit: '0x47b760',
             from: this.publicKey,
             value: web3.web3Http.utils.toHex(0),
-            data: `0x${contractData.bytecode}`
+            data: encodedABI,
           }
-
           web3.web3Http.eth.accounts.signTransaction(transactionParams, process.env.PRIVATE_KEY)
             .then(signedTransaction => {
-              console.log('signed tx:')
-              console.log(signedTransaction)
               web3.web3Http.eth.sendSignedTransaction(signedTransaction.rawTransaction)
                 .then(receipt => {
                   console.log(receipt);
@@ -263,12 +250,7 @@ router.get('/deploy/contract/:file', (request, response) => {
         .catch(error => {
           console.log(error);
         })
-      })
-    .catch(error => {
-      console.log(error)
-      return errorResponse(response, error);
     })
-})
 
 
 module.exports = router;

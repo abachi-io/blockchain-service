@@ -28,49 +28,15 @@ class Proof {
   readContract(contract) {
     return new Promise((resolve, reject) => {
       try {
-        const filePath = path.resolve(path.join(`./contracts/${contract}.json`))
-        const file = fs.readFileSync(filePath, 'utf8');
-        const rawContract = JSON.parse(file)
-        console.log(rawContract)
-        console.log({ abi: rawContract.abi, bytecode: rawContract.bytecode })
-        return resolve({ abi: rawContract.abi, bytecode: rawContract.bytecode });
+        const abiPath = path.resolve(path.join(`./contracts/${contract}.abi`))
+        const bytecodePath = path.resolve(path.join(`./contracts/${contract}.bin`))
+        const abiFile = fs.readFileSync(abiPath, 'utf8');
+        const bytecodeFile = fs.readFileSync(bytecodePath, 'utf8');
+        const abi = JSON.parse(abiFile)
+        const bytecode = `0x${bytecodeFile}`
+        return resolve({ abi, bytecode});
       } catch (error) {
-        console.log(error)
         return reject(error);
-      }
-    })
-  }
-
-  readContract2(contract) {
-    return new Promise((resolve, reject) => {
-      try {
-        const file = `${contract}.sol`
-        const path = `./contracts/${file}`
-        const source = fs.readFileSync(path, 'UTF-8')
-        const contractTemplate = {
-          language: 'Solidity',
-          sources: {
-            [file] : {
-              content: source
-            }
-          },
-          settings: {
-            outputSelection: {
-              '*': {
-                '*': [ '*' ]
-              }
-            }
-          }
-        };
-        const parseFile = JSON.parse(solc.compile(JSON.stringify(contractTemplate)))
-        const abi = parseFile.contracts['Proof.sol'].Proof.abi
-        const bytecode = parseFile.contracts['Proof.sol'].Proof.evm.bytecode.object
-        resolve({
-          abi,
-          bytecode
-        });
-      } catch (error) {
-        reject(error)
       }
     })
   }
@@ -119,46 +85,32 @@ class Proof {
 
   set(key, store) {
     return new Promise((resolve, reject) => {
-//      this.contract.methods.set('123', '321').call()
-       this.contract.methods.set(key, store).call({from : this.publicKey})
-        .then(data => {
-          this.contract.methods.get(key).call({from : this.publicKey})
-            .then(console.log)
-            .catch(console.log)
+       const encodedABI = this.contract.methods.set(key, store).encodeABI()
+       this.sendTransaction(encodedABI)
+        .then(receipt => {
+          return resolve(receipt);
         })
-        .catch(console.log)
-       // const encodedABI = this.contract.methods.set(key, store).encodeABI()
-       // this.sendTransaction(encodedABI)
-       //  .then(receipt => {
-       //    return resolve(receipt);
-       //  })
-       //  .catch(error => {
-       //    return reject(error);
-       //  })
-
+        .catch(error => {
+          return reject(error);
+        })
     })
   }
 
   get(key) {
     return new Promise((resolve, reject) => {
-
-      // const encodedABI = this.contract.methods.get(key).encodeABI()
-      // console.log(encodedABI)
-      // this.sendTransaction(encodedABI)
-      //  .then(receipt => {
-      //    return resolve(receipt);
-      //  })
-      //  .catch(error => {
-      //    return reject(error);
-      //  })
+      this.contract.methods.get(key).call()
+        .then(result => {
+          resolve(result)
+        })
+        .catch(console.log)
     })
   }
 
   exists(key) {
     return new Promise((resolve, reject) => {
-      this.contract.methods.exists(key).call({from : this.publicKey})
-        .then(bool => {
-          return resolve(bool);
+      this.contract.methods.exists(key).call()
+        .then(exists => {
+          return resolve(exists);
         })
         .catch(error => {
           return reject(error);
@@ -168,7 +120,7 @@ class Proof {
 
   timestamp(key) {
     return new Promise((resolve, reject) => {
-      this.contract.methods.timestamp(key).call({from : this.publicKey})
+      this.contract.methods.timestamp(key).call()
         .then(lastUpdated => {
           return resolve(lastUpdated);
         })
@@ -180,13 +132,14 @@ class Proof {
 
   remove(key) {
     return new Promise((resolve, reject) => {
-      this.contract.methods.remove(key).call({from : this.publicKey})
-        .then(bool => {
-          return resolve(bool);
-        })
-        .catch(error => {
-          return reject(error);
-        })
+      const encodedABI = this.contract.methods.remove(key).encodeABI()
+      this.sendTransaction(encodedABI)
+       .then(bool => {
+         return resolve(bool);
+       })
+       .catch(error => {
+         return reject(error);
+       })
     })
   }
 
