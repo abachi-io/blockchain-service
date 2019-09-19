@@ -10,6 +10,7 @@ const contract = new Contract()
 const Proof = require('../components/Proof')
 const proof = new Proof(web3)
 const InputDataDecoder = require('ethereum-input-data-decoder');
+const axios = require('axios')
 
 const successResponse = (response, message = null, data = null) => {
   response.status(200).send({
@@ -138,14 +139,16 @@ router.get('/transactionReceipt/:hash', (request, response) => {
 })
 
 router.get('/pendingTransactions', (request, response) => {
-  web3.web3Http.eth.getPendingTransactions()
-  .then(block => {
-    return successResponse(response, `${block.length}`, block)
-  })
-  .catch(error => {
-    console.log(error)
-    return errorResponse(response, error)
-  })})
+  web3.web3Http.eth.txpool.content()
+    .then(txpool => {
+      return successResponse(response, `Requested pending transactions`, txpool)
+
+    })
+    .catch(error => {
+      console.log(error)
+      return errorResponse(response, error)
+    })
+})
 
 
 router.get('/block/:blockNumber', (request, response) => {
