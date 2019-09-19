@@ -2,9 +2,18 @@ const dotenv = require('dotenv').config()
 const fs = require('fs')
 const path = require('path');
 const solc = require('solc');
+const shell = require('shelljs');
 
 class Contract {
+
   compile(contract) {
+    console.log(`Compiling ${contract}.sol`)
+    const cmd = `solc --overwrite --gas --bin --abi --optimize-runs=200 -o ./contracts/ ./contracts/${contract}.sol`
+    const output = shell.exec(cmd, {async:true})
+    output.stdout.on('data', console.log);
+  }
+
+  compileManually(contract) {
     return new Promise((resolve, reject) => {
       try {
         const file = `${contract}.sol`
