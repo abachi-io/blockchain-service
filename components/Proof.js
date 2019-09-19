@@ -1,7 +1,6 @@
 const dotenv = require('dotenv').config()
 const fs = require('fs')
 const path = require('path');
-const solc = require('solc')
 
 class Proof {
   constructor(web3) {
