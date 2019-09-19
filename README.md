@@ -35,9 +35,9 @@ The server should reply back with
 
 ```javascript
 {
-success: true,
-timestamp: 1568681957053,
-message: "pong",
-data: null
+  success: true,
+  timestamp: 1568681957053,
+  message: "pong",
+  data: null
 }
 ```
