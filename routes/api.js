@@ -165,7 +165,7 @@ router.get('/transaction/:hash', (request, response) => {
 
 router.get('/transactionReceipt/:hash', (request, response) => {
   const {hash} = request.params
-  web3.eth.getTransactionReceipt(hash)
+  web3.web3Http.eth.getTransactionReceipt(hash)
   .then(receipt => {
     return successResponse(response, `Receipt for transaction ${hash}`, receipt)
   })
