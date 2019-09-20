@@ -8,5 +8,6 @@ RUN npm i
 
 COPY . .
 
-EXPOSE 3460
+EXPOSE 9899
+
 CMD [ "node", "index.js" ]
