@@ -82,7 +82,7 @@ router.get('/balance/:address', (request, response) => {
       return successResponse(response, `Address: ${address}`, balance);
     })
     .catch(error => {
-      return errorResponse(response, error.message);
+      return errorResponse(response, error.message || error);
     })
 })
 
@@ -93,10 +93,10 @@ router.get('/proof/data/:key', (request, response) => {
     if(!key) throw(`Empty 'key' sent in query parameter`)
     proof.get(key)
       .then(payload => {
-        return successResponse(response, `CMD: get(${key})`, payload);
+        return successResponse(response, `CMD: get(${key})`, {result: payload});
       })
       .catch(error => {
-        return errorResponse(response, error.message);
+        return errorResponse(response, error.message || error);
       })
 })
 
@@ -105,10 +105,10 @@ router.post('/proof/', (request, response) => {
   if(!key || !store) throw(`Body paramater 'key' or 'store' not sent`)
   proof.set(key, store)
     .then(payload => {
-      return successResponse(response, `CMD: set(${key}, ${store})`, payload);
+      return successResponse(response, `CMD: set(${key}, ${store})`, {result: payload});
     })
     .catch(error => {
-      return errorResponse(response, error.message);
+      return errorResponse(response, error.message || error);
     })
 
 })
@@ -118,10 +118,10 @@ router.delete('/proof/', (request, response) => {
   if(!key ) throw(`Body paramater 'key' not sent`)
   proof.remove(key)
     .then(payload => {
-      return successResponse(response, `CMD: remove(${key})`, payload);
+      return successResponse(response, `CMD: remove(${key})`, {result: payload});
     })
     .catch(error => {
-      return errorResponse(response, error.message);
+      return errorResponse(response, error.message || error);
     })
 })
 
@@ -130,10 +130,10 @@ router.get('/proof/exists/:key', (request, response) => {
     if(!key) throw(`Empty 'key' sent in query parameter`)
     proof.exists(key)
       .then(payload => {
-        return successResponse(response, `CMD: exists(${key})`, payload);
+        return successResponse(response, `CMD: exists(${key})`, {result: payload});
       })
       .catch(error => {
-        return errorResponse(response, error.message);
+        return errorResponse(response, error.message || error);
       })
 })
 
@@ -142,10 +142,10 @@ router.get('/proof/timestamp/:key', (request, response) => {
     if(!key) throw(`Empty 'key' sent in query parameter`)
     proof.timestamp(key)
       .then(payload => {
-        return successResponse(response, `CMD: timestamp(${key})`, payload);
+        return successResponse(response, `CMD: timestamp(${key})`, {result: parseInt(payload)});
       })
       .catch(error => {
-        return errorResponse(response, error.message);
+        return errorResponse(response, error.message || error);
       })
 })
 
@@ -159,7 +159,7 @@ router.get('/transaction/:hash', (request, response) => {
       return successResponse(response, `Requested transaction ${hash}`, transaction)
     })
     .catch(error => {
-      return errorResponse(response, error.message);
+      return errorResponse(response, error.message || error);
     })
 })
 
@@ -170,7 +170,7 @@ router.get('/transactionReceipt/:hash', (request, response) => {
     return successResponse(response, `Receipt for transaction ${hash}`, receipt)
   })
   .catch(error => {
-    return errorResponse(response, error.message);
+    return errorResponse(response, error.message || error);
   })
 })
 
@@ -181,7 +181,7 @@ router.get('/pendingTransactions', (request, response) => {
 
     })
     .catch(error => {
-      return errorResponse(response, error.message);
+      return errorResponse(response, error.message || error);
     })
 })
 
@@ -193,7 +193,7 @@ router.get('/block/:blockNumber', (request, response) => {
       return successResponse(response, `Requested block #${blockNumber}`, block)
     })
     .catch(error => {
-      return errorResponse(response, error.message);
+      return errorResponse(response, error.message || error);
     })
 })
 
@@ -211,7 +211,7 @@ router.get('/contract', (request, response) => {
       return successResponse(response, 'Decoded Contract', decoder)
     })
     .catch(error => {
-      return errorResponse(response, error.message);
+      return errorResponse(response, error.message || error);
     })
 })
 
@@ -222,7 +222,7 @@ router.get('/hash/:hash', (request, response) => {
       return successResponse(response, 'Retrieved from blockchain', payload)
     })
     .catch(error => {
-      return errorResponse(response, error.message);
+      return errorResponse(response, error.message || error);
     })
 })
 
@@ -233,7 +233,7 @@ router.get('/isHash/:hash', (request, response) => {
       return successResponse(response, `Check if ${hash} exists`, payload);
     })
     .catch(error => {
-      return errorResponse(response, error.message);
+      return errorResponse(response, error.message || error);
     })
 })
 
@@ -244,7 +244,7 @@ router.post('/hash', (request, response) => {
       return successResponse(response, `Stored Invoice ID: '${invoiceId}' with hash '${hash}'`, payload);
     })
     .catch(error => {
-      return errorResponse(response, error.message);
+      return errorResponse(response, error.message || error);
     })
 })
 
