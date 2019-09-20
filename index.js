@@ -6,7 +6,6 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const port = process.env.SERVER_PORT || 9999;
-const mongoose = require('mongoose');
 
 const server = app.listen(port, () => {
   console.log(chalk.green(`[+] Listening on port: ${port}`))
