@@ -1,7 +1,5 @@
 process.title = "Blockchain Service"
 const dotenv = require('dotenv').config()
-const FileInspector = require('./components/FileInspector')
-const fileInspector = new FileInspector()
 const chalk = require('chalk')
 const cluster = require('cluster')
 const express = require('express');
