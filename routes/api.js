@@ -74,18 +74,6 @@ router.get('/status', (request, response) => {
     })
 })
 
-router.get('/balance/:address', (request, response) => {
-  const { address } = request.params
-  if(!web3.web3Http.utils.isAddress(address)) return errorResponse(response, 'Not a valid address');
-  web3.web3Http.eth.getBalance(address)
-    .then(balance => {
-      return successResponse(response, `Address: ${address}`, balance);
-    })
-    .catch(error => {
-      return errorResponse(response, error.message || error);
-    })
-})
-
 // Proof Contract \\
 
 router.get('/proof/data/:key', (request, response) => {
@@ -151,6 +139,18 @@ router.get('/proof/timestamp/:key', (request, response) => {
 
 
 // Web3 Wrapper \\
+
+router.get('/balance/:address', (request, response) => {
+  const { address } = request.params
+  if(!web3.web3Http.utils.isAddress(address)) return errorResponse(response, 'Not a valid address');
+  web3.web3Http.eth.getBalance(address)
+    .then(balance => {
+      return successResponse(response, `Address: ${address}`, balance);
+    })
+    .catch(error => {
+      return errorResponse(response, error.message || error);
+    })
+})
 
 router.get('/transaction/:hash', (request, response) => {
   const { hash } = request.params
@@ -251,7 +251,6 @@ router.post('/hash', (request, response) => {
 
 
 router.get('/deploy/contract', (request, response) => {
-  // getContractEncodeABI(proof.abi,
         const encodedABI = proof.contract.deploy({ data : proof.bytecode}).encodeABI()
         Promise.all([
           web3.web3Http.eth.getGasPrice(),
