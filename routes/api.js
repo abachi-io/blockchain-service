@@ -11,6 +11,22 @@ const Proof = require('../components/Proof')
 const proof = new Proof(web3)
 const InputDataDecoder = require('ethereum-input-data-decoder');
 const axios = require('axios')
+const mongoose = require('mongoose');
+const chalk = require('chalk')
+
+let mongod = undefined;
+mongoose.connect('mongodb://127.0.0.1/lucaHash', { useNewUrlParser: true });
+  mongoose.connection.on('connected', () => {
+  mongod = true
+  console.log(chalk.green(`[+] Connected to MongoDB`));
+});
+
+mongoose.set('useFindAndModify', false);
+
+mongoose.connection.on('error', (err) => {
+  mongod = false
+  console.log(chalk.red(`[X] ${err}`))
+});
 
 const successResponse = (response, message = null, data = null) => {
   response.status(200).send({
@@ -35,14 +51,36 @@ router.get('/ping', (request, response) => {
   return successResponse(response, 'pong')
 })
 
-router.get('/balance', (request, response) => {
-  web3.web3Http.eth.getBalance(process.env.PUBLIC_KEY)
-    .then(balance => {
-      return successResponse(response, `Address: ${process.env.PUBLIC_KEY}`, balance);
+router.get('/status', (request, response) => {
+  web3.web3Http.eth.getBlockNumber()
+    .then(nodeStatus => {
+      return successResponse(response, '', {
+        endpoint: true,
+        geth: true,
+        mongod
+      });
     })
     .catch(error => {
       console.log(error)
-      return errorResponse(response, error);
+      return successResponse(response, '', {
+        endpoint: true,
+        geth: false,
+        mongod
+      });
+    })
+})
+
+router.get('/balance/:address', (request, response) => {
+  const { address } = request.params
+  console.log(address)
+  if(!web3.web3Http.utils.isAddress(address)) return errorResponse(response, 'Not a valid address');
+  console.log(address)
+  web3.web3Http.eth.getBalance(address)
+    .then(balance => {
+      return successResponse(response, `Address: ${address}`, balance);
+    })
+    .catch(error => {
+      return errorResponse(response, error.message);
     })
 })
 
@@ -57,7 +95,7 @@ router.get('/proof/data/:key', (request, response) => {
       })
       .catch(error => {
         console.log(error)
-        return errorResponse(response, error);
+        return errorResponse(response, error.message);
       })
 })
 
@@ -69,8 +107,7 @@ router.post('/proof/', (request, response) => {
       return successResponse(response, `CMD: set(${key}, ${store})`, payload);
     })
     .catch(error => {
-      console.log(error)
-      return errorResponse(response, error);
+      return errorResponse(response, error.message);
     })
 
 })
@@ -83,7 +120,7 @@ router.delete('/proof/', (request, response) => {
       return successResponse(response, `CMD: remove(${key})`, payload);
     })
     .catch(error => {
-      return errorResponse(response, error);
+      return errorResponse(response, error.message);
     })
 })
 
@@ -95,7 +132,7 @@ router.get('/proof/exists/:key', (request, response) => {
         return successResponse(response, `CMD: exists(${key})`, payload);
       })
       .catch(error => {
-        return errorResponse(response, error);
+        return errorResponse(response, error.message);
       })
 })
 
@@ -107,7 +144,7 @@ router.get('/proof/timestamp/:key', (request, response) => {
         return successResponse(response, `CMD: timestamp(${key})`, payload);
       })
       .catch(error => {
-        return errorResponse(response, error);
+        return errorResponse(response, error.message);
       })
 })
 
@@ -121,8 +158,7 @@ router.get('/transaction/:hash', (request, response) => {
       return successResponse(response, `Requested transaction ${hash}`, transaction)
     })
     .catch(error => {
-      console.log(error)
-      return errorResponse(response, error)
+      return errorResponse(response, error.message);
     })
 })
 
@@ -134,7 +170,7 @@ router.get('/transactionReceipt/:hash', (request, response) => {
   })
   .catch(error => {
     console.log(error)
-    return errorResponse(response, error)
+    return errorResponse(response, error.message);
   })
 })
 
@@ -146,7 +182,7 @@ router.get('/pendingTransactions', (request, response) => {
     })
     .catch(error => {
       console.log(error)
-      return errorResponse(response, error)
+      return errorResponse(response, error.message);
     })
 })
 
@@ -159,7 +195,7 @@ router.get('/block/:blockNumber', (request, response) => {
     })
     .catch(error => {
       console.log(error)
-      return errorResponse(response, error)
+      return errorResponse(response, error.message);
     })
 })
 
@@ -177,7 +213,7 @@ router.get('/contract', (request, response) => {
       return successResponse(response, 'Decoded Contract', decoder)
     })
     .catch(error => {
-      return errorResponse(response, error)
+      return errorResponse(response, error.message);
     })
 })
 
@@ -188,7 +224,7 @@ router.get('/hash/:hash', (request, response) => {
       return successResponse(response, 'Retrieved from blockchain', payload)
     })
     .catch(error => {
-      return errorResponse(response, error)
+      return errorResponse(response, error.message);
     })
 })
 
@@ -199,7 +235,7 @@ router.get('/isHash/:hash', (request, response) => {
       return successResponse(response, `Check if ${hash} exists`, payload);
     })
     .catch(error => {
-      return errorResponse(response, error);
+      return errorResponse(response, error.message);
     })
 })
 
@@ -210,7 +246,7 @@ router.post('/hash', (request, response) => {
       return successResponse(response, `Stored Invoice ID: '${invoiceId}' with hash '${hash}'`, payload);
     })
     .catch(error => {
-      return errorResponse(response, error);
+      return errorResponse(response, error.message);
     })
 })
 
