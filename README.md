@@ -1,5 +1,9 @@
 # Luca Blockchain Service
 
+## Introduction
+
+This service is used for submitting/verifying hashes that stores in the blockchain
+
 ## Getting started
 
 ### Download and install dependencies
