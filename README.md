@@ -4,6 +4,10 @@
 
 This service is used for submitting/verifying hashes that stores in the blockchain
 
+# API Documentation
+
+POST MAN https://documenter.getpostman.com/view/5312272/SVfUsmZ3?version=latest
+
 ## Getting started
 
 ### Download and install dependencies
