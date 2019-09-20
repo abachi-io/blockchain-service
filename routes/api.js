@@ -52,29 +52,31 @@ router.get('/ping', (request, response) => {
 })
 
 router.get('/status', (request, response) => {
-  web3.web3Http.eth.getBlockNumber()
-    .then(nodeStatus => {
-      return successResponse(response, '', {
+  web3.web3Http.eth.txpool.status()
+    .then(txpool => {
+      return successResponse(response, 'Health Check', {
         endpoint: true,
         geth: true,
-        mongod
+        mongod,
+        txpool: {
+          pending: parseInt(txpool.pending, 16) || 0,
+          qued: parseInt(txpool, 16) || 0
+        }
       });
     })
     .catch(error => {
-      console.log(error)
-      return successResponse(response, '', {
+      return successResponse(response, 'Health Check', {
         endpoint: true,
         geth: false,
-        mongod
+        mongod,
+        txpool
       });
     })
 })
 
 router.get('/balance/:address', (request, response) => {
   const { address } = request.params
-  console.log(address)
   if(!web3.web3Http.utils.isAddress(address)) return errorResponse(response, 'Not a valid address');
-  console.log(address)
   web3.web3Http.eth.getBalance(address)
     .then(balance => {
       return successResponse(response, `Address: ${address}`, balance);
@@ -94,7 +96,6 @@ router.get('/proof/data/:key', (request, response) => {
         return successResponse(response, `CMD: get(${key})`, payload);
       })
       .catch(error => {
-        console.log(error)
         return errorResponse(response, error.message);
       })
 })
@@ -169,7 +170,6 @@ router.get('/transactionReceipt/:hash', (request, response) => {
     return successResponse(response, `Receipt for transaction ${hash}`, receipt)
   })
   .catch(error => {
-    console.log(error)
     return errorResponse(response, error.message);
   })
 })
@@ -181,7 +181,6 @@ router.get('/pendingTransactions', (request, response) => {
 
     })
     .catch(error => {
-      console.log(error)
       return errorResponse(response, error.message);
     })
 })
@@ -194,7 +193,6 @@ router.get('/block/:blockNumber', (request, response) => {
       return successResponse(response, `Requested block #${blockNumber}`, block)
     })
     .catch(error => {
-      console.log(error)
       return errorResponse(response, error.message);
     })
 })
