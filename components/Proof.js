@@ -66,6 +66,14 @@ class Proof {
     })
   }
 
+  timeout() {
+    return new Promise((resolve, reject) => {
+      setTimeout(()=>{
+        resolve('timeout')
+      }, parseInt(process.env.TRANSACTION_TIMEOUT))
+    })
+  }
+
   sendTransaction(payload) {
     return new Promise((resolve, reject) => {
       Promise.all([
@@ -89,13 +97,20 @@ class Proof {
 
         this.web3.eth.accounts.signTransaction(transactionParams, this.privateKey)
           .then(signedTransaction => {
-            this.web3.eth.sendSignedTransaction(signedTransaction.rawTransaction)
-              .then(receipt => {
+            Promise.race([
+              this.web3.eth.sendSignedTransaction(signedTransaction.rawTransaction),
+              this.timeout()
+            ])
+            .then(receipt => {
+              if(receipt === 'timeout') {
+                return reject('Timed out waiting for a receipt');
+              } else {
                 return resolve(receipt);
-              })
-              .catch(error => {
-                return reject(error);
-              })
+              }
+            })
+            .catch(error => {
+              return reject(error);
+            })
           })
           .catch(error => {
             return reject(error);
