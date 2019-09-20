@@ -7,9 +7,9 @@ class Proof {
     this.web3 = web3.web3Http
     this.abi = ''
     this.bytecode = ''
-    this.contractAddress = process.env.PROOF_CONTRACT_ADDRESS
+    this.contractAddress = this.web3.utils.toChecksumAddress(process.env.PROOF_CONTRACT_ADDRESS)
     this.contract = null
-    this.publicKey = process.env.PUBLIC_KEY
+    this.publicKey = this.web3.utils.toChecksumAddress(process.env.PUBLIC_KEY)
     this.privateKey = process.env.PRIVATE_KEY
     this.init()
   }
