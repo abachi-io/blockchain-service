@@ -69,7 +69,10 @@ router.get('/status', (request, response) => {
         endpoint: true,
         geth: false,
         mongod,
-        txpool
+        txpool: {
+          pending: parseInt('NA'),
+          qued: parseInt('NA')
+        }
       });
     })
 })
