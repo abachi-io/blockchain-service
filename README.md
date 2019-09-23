@@ -23,11 +23,13 @@ This service is used for storing/retrieving hashes on the blockchain
 
 ### Download
 
-Download this repository to your computer
+Clone the repository to your computer
 
 ```
 git clone https://github.com/ledgerium/blockchain-service.git
 ```
+
+Navigate into the cloned directory
 
 ```
 cd blockchain-service
@@ -41,7 +43,7 @@ Create a new file `.env`, open and add the following:
 ```
 WEB3_HTTP=http://testnet.ledgerium.net:8545
 SERVER_PORT=9899
- PROOF_CONTRACT_ADDRESS=0xEFA87544B7a6975c715f94905697B854ed28B9A8
+PROOF_CONTRACT_ADDRESS=0xEFA87544B7a6975c715f94905697B854ed28B9A8
 PUBLIC_KEY=
 PRIVATE_KEY=
 ```
@@ -106,6 +108,8 @@ Once your container is up and running, you can inspect a list of your running co
 ```
 docker ps
 ```
+
+You will see the following output:
 
 
 ```
