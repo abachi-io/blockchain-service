@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This service is used for submitting/retrieving hash stores in the blockchain
+This service is used for storing/retrieving hash stores in the blockchain
 
 ## API Documentation
 
