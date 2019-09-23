@@ -38,7 +38,7 @@ PRIVATE_KEY=
 
 You are responsible for filling `PUBLIC_KEY=` and `PRIVATE_KEY=` with your XLG address keys
 
-## Run without Docker
+### Run without Docker
 
 ```
 npm install
@@ -49,7 +49,7 @@ node index
 ```
 
 
-## Run with Docker
+### Run with Docker
 
 You are now ready to build the application image using the docker build command. Using the `-t` flag with docker build will allow you to tag the image with a memorable name. We will tag the image as `blockchain-service`, but feel free to replace this with a name of your own choosing.
 
