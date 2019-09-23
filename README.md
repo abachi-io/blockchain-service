@@ -12,10 +12,42 @@ This service is used for storing/retrieving hashes on the blockchain
 
 ## Getting started
 
-### Download
+
+### Prerequisites
+
+#### NodeJS
+Confirm you have NodeJS installed by running `node -v`, output should look like:
 
 ```
-git clone https://github.com/SkyTradeInc/blockchain-service.git
+v11.1.0
+```
+
+[Download NodeJS](https://nodejs.org/en/)
+
+#### NPM (Node Package Manager)
+Confirm you have NPM installed by running `npm -v`, output should look like:
+
+```
+v6.8.0
+```
+
+[Download NPM](https://www.npmjs.com/get-npm)
+
+#### Docker (optional)
+Confirm you have Docker installed and running by `docker -v`, output should look like:
+
+```
+Docker version 18.09.2, build 6247962
+```
+
+[Download Docker](https://www.docker.com/get-started)
+
+### Download Project
+
+Download this repository to your computer
+
+```
+git clone https://github.com/ledgerium/blockchain-service.git
 ```
 
 ```
