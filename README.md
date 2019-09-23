@@ -10,39 +10,18 @@ This service is used for storing/retrieving hashes on the blockchain
 
 * [Swagger](https://app.swaggerhub.com/apis-docs/SkyTradeInc/LucaBlockchain/1.0.0-oas3)
 
+## Prerequisites
+
+* NodeJS [Download](https://nodejs.org/en/)
+* NPM (Node Package Manager) [Download](https://www.npmjs.com/get-npm)
+
+**OR**
+
+* Docker [Download](https://www.docker.com/get-started)
+
 ## Getting started
 
-
-### Prerequisites
-
-#### NodeJS
-Confirm you have NodeJS installed by running `node -v`, output should look like:
-
-```
-v11.1.0
-```
-
-[Download NodeJS](https://nodejs.org/en/)
-
-#### NPM (Node Package Manager)
-Confirm you have NPM installed by running `npm -v`, output should look like:
-
-```
-v6.8.0
-```
-
-[Download NPM](https://www.npmjs.com/get-npm)
-
-#### Docker (optional)
-Confirm you have Docker installed and running by `docker -v`, output should look like:
-
-```
-Docker version 18.09.2, build 6247962
-```
-
-[Download Docker](https://www.docker.com/get-started)
-
-### Download Project
+### Download
 
 Download this repository to your computer
 
