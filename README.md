@@ -12,7 +12,7 @@ This service is used for submitting/retrieving hash stores in the blockchain
 
 ## Getting started
 
-### Download and install dependencies
+### Download
 
 ```
 git clone https://github.com/SkyTradeInc/blockchain-service.git
@@ -21,6 +21,9 @@ git clone https://github.com/SkyTradeInc/blockchain-service.git
 ```
 cd blockchain-service
 ```
+
+### Create environment variables
+
 
 Create a new file `.env`, open and add the following:
 
@@ -33,9 +36,9 @@ PUBLIC_KEY=
 PRIVATE_KEY=
 ```
 
-You are responsible for filling `PUBLIC_KEY=` and `PRIVATE_KEY=` with your own values
+You are responsible for filling `PUBLIC_KEY=` and `PRIVATE_KEY=` with your XLG address keys
 
-### Run without Docker
+## Run without Docker
 
 ```
 npm install
@@ -119,3 +122,9 @@ The server should reply back with
   data: null
 }
 ```
+
+## How to Contribute
+
+1. Clone repo and create a new branch
+2. Make changes and test
+3. Submit Pull Request with comprehensive description of changes
