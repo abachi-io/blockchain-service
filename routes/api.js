@@ -14,19 +14,19 @@ const axios = require('axios')
 const mongoose = require('mongoose');
 const chalk = require('chalk')
 
-let mongod = undefined;
-mongoose.connect('mongodb://127.0.0.1/lucaHash', { useNewUrlParser: true });
-  mongoose.connection.on('connected', () => {
-  mongod = true
-  console.log(chalk.green(`[+] Connected to MongoDB`));
-});
-
-mongoose.set('useFindAndModify', false);
-
-mongoose.connection.on('error', (err) => {
-  mongod = false
-  console.log(chalk.red(`[X] ${err}`))
-});
+let mongod = false;
+// mongoose.connect('mongodb://127.0.0.1/lucaHash', { useNewUrlParser: true });
+//   mongoose.connection.on('connected', () => {
+//   mongod = true
+//   console.log(chalk.green(`[+] Connected to MongoDB`));
+// });
+//
+// mongoose.set('useFindAndModify', false);
+//
+// mongoose.connection.on('error', (err) => {
+//   mongod = false
+//   console.log(chalk.red(`[X] ${err}`))
+// });
 
 const successResponse = (response, message = null, data = null) => {
   response.status(200).send({
