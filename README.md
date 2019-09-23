@@ -15,22 +15,25 @@ SWAGGER https://app.swaggerhub.com/apis-docs/SkyTradeInc/LucaBlockchain/1.0.0-oa
 
 `git clone https://github.com/SkyTradeInc/blockchain-service.git`
 
+
 `cd blockchain-service`
 
-`npm i`
-
-Create a new file `.env`, open and add following text
+Create a new file `.env`, open and add the following:
 
 ```
 SERVER_PORT=9899
-NETWORK=
-CONTRACT_ADDRESS=
+NETWORK=http://testnet.ledgerium.net
+CONTRACT_ADDRESS=0x0000000000000000000000000000000000002020
+PROOF_CONTRACT_ADDRESS=0xEFA87544B7a6975c715f94905697B854ed28B9A8
 PUBLIC_KEY=
-PROOF_CONTRACT_ADDRESS=
 PRIVATE_KEY=
 ```
 
+You are responsible for filling `PUBLIC_KEY=` and `PRIVATE_KEY=` with your own values
+
 ### Run without Docker
+
+`npm i`
 
 `node index`
 
@@ -58,31 +61,27 @@ node                         10-alpine           f09e7c96b6de        3 weeks ago
 
 It is now possible to create a container with this image using docker run. We will include three flags with this command:
 
-* `-p`: This publishes the port on the container and maps it to a port on our host. We will use port 80 on the host, but you should feel free to modify this as necessary if you have another process running on that port. For more information about how this works, see [this discussion](https://docs.docker.com/v17.09/engine/userguide/networking/default_network/binding/) in the Docker docs on port binding.
+* `-p`: This publishes the port on the container and maps it to a port on our host. We will use port 9899 on the host, but you should feel free to modify this as necessary if you have another process running on that port. For more information about how this works, see [this discussion](https://docs.docker.com/v17.09/engine/userguide/networking/default_network/binding/) in the Docker docs on port binding.
 * `-d`: This runs the container in the background.
 * `--name`: This allows us to give the container a memorable name.
 Run the following command to build the container:
 
-`docker run --name blockchain-service -p 80:9899 -d blockchain-service`
+`docker run --name blockchain-service -p 9899:9899 -d blockchain-service`
 
 Once your container is up and running, you can inspect a list of your running containers with docker ps:
 
 `docker ps`
 
 ```
-CONTAINER ID        IMAGE                                                   COMMAND             CREATED             STATUS              PORTS                  NAMES
-e50ad27074a7        blockchain-service              "node index.js"       8 seconds ago       Up 7 seconds        0.0.0.0:80->8080/tcp   nodejs-image-demo
+CONTAINER ID       IMAGE                   COMMAND             CREATED           STATUS           PORTS                  NAMES
+ae8b4b8952bc       blockchain-service      "node index.js"     8 seconds ago     Up 7 seconds     0.0.0.0:9899->9899/tcp   blockchain-service
 ```
-
-
-
-
 
 ### Test
 
 Go to your browser and navigate to
 
-`http://localhost:9899/api/ping`
+`http://localhost9899/api/ping`
 
 The server should reply back with
 
