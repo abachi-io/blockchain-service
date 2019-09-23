@@ -52,12 +52,22 @@ You are responsible for filling `PUBLIC_KEY=` and `PRIVATE_KEY=` with your XLG a
 
 ### Run without Docker
 
+You need to install the package dependencies
+
 ```
 npm install
 ```
 
+Run the application
+
 ```
 node index
+```
+
+You will see the following output:
+
+```
+[+] Listening on port: 9899
 ```
 
 
