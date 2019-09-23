@@ -7,10 +7,12 @@ This service is used for submitting/verifying hashes that stores in the blockcha
 # API Documentation
 
 POST MAN https://documenter.getpostman.com/view/5312272/SVfUsmZ3?version=latest
+SWAGGER https://app.swaggerhub.com/apis-docs/SkyTradeInc/LucaBlockchain/1.0.0-oas3
 
 ## Getting started
 
 ### Download and install dependencies
+
 `git clone https://github.com/SkyTradeInc/blockchain-service.git`
 
 `cd blockchain-service`
