@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This service is used for storing/retrieving hashes on the blockchain
+This service is used for storing/retrieving hashes on the Ledgerium blockchain
 
 ## API Documentation
 
