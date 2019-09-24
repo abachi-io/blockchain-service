@@ -5,6 +5,8 @@ const Web3 = require('../components/Web3')
 const web3 = new Web3()
 const Invoice = require('../components/Invoice')
 const invoice = new Invoice(web3)
+const MerkleTree = require('../components/MerkleTree')
+const merkleTree = new MerkleTree()
 const Contract = require('../components/Contract')
 const contract = new Contract()
 const Proof = require('../components/Proof')
@@ -14,19 +16,94 @@ const axios = require('axios')
 const mongoose = require('mongoose');
 const chalk = require('chalk')
 
+const KeyStore = require('../models/KeyStore.js')
+const KeyStoreHistory = require('../models/KeyStoreHistory.js')
+
+
+router.get('/merkle/data/:key', (request, response) => {
+  const {key} = request.params
+  KeyStoreHistory.findOne({key})
+    .then(db => {
+      return successResponse(response, `Returned document for key '${key}'`, db)
+    })
+    .catch(error => {
+      return errorResponse(response, error.message || error);
+    })
+})
+
+router.get('/merkle/root/:key', (request, response) => {
+  console.log('lel')
+  const {key} = request.params
+  KeyStoreHistory.findOne({key})
+    .then(doc => {
+      return successResponse(response, `Returned Merkle Root for key: '${key}'`, doc.merkleRoot)
+    })
+    .catch(error => {
+      return errorResponse(response, error.message || error);
+    })
+})
+
+router.post('/merkle/compare', (request, response) => {
+
+})
+
+router.post('/merkle/verify', (request, response) => {
+  const {hash}
+})
+
+router.get('/merkle/roots/:key', (request, response) => {
+  const {key} = request.params
+  KeyStoreHistory.findOne({key})
+    .then(doc => {
+      let roots = []
+      let hashes = []
+      for(let i=doc.history.length-1; i>=0; i--) {
+        hashes.push(merkleTree.sha256(doc.history[i].store))
+        if(i == doc.history.length-1) {
+          roots.push(merkleTree.createRoot(doc.history[i].store))
+        } else {
+          roots.push(merkleTree.appendRoot(roots[roots.length-1], merkleTree.sha256(doc.history[i].store)))
+        }
+      }
+      return successResponse(response, `Returned Merkle Roots for key: '${key}'`, {merkleRoot: roots[roots.length-1], merkleRoots: roots, hashes})
+    })
+    .catch(error => {
+      return errorResponse(response, error.message || error);
+    })
+})
+
+//
+router.get('/db/all', (request, response) => {
+  KeyStoreHistory.find({})
+    .then(db => {
+      return successResponse(response, 'pong', db)
+    })
+    .catch(error => {
+      return errorResponse(response, error.message || error);
+    })
+})
+
+router.delete('/db/all', (request, response) => {
+  KeyStoreHistory.deleteMany({})
+  KeyStore.deleteMany({})
+})
+
+//
+
+
 let mongod = false;
-// mongoose.connect('mongodb://127.0.0.1/lucaHash', { useNewUrlParser: true });
-//   mongoose.connection.on('connected', () => {
-//   mongod = true
-//   console.log(chalk.green(`[+] Connected to MongoDB`));
-// });
-//
-// mongoose.set('useFindAndModify', false);
-//
-// mongoose.connection.on('error', (err) => {
-//   mongod = false
-//   console.log(chalk.red(`[X] ${err}`))
-// });
+mongoose.connect('mongodb://127.0.0.1/lucaHash', { useNewUrlParser: true });
+  mongoose.connection.on('connected', () => {
+  mongod = true
+  console.log(chalk.green(`[+] Connected to MongoDB`));
+});
+
+mongoose.set('useFindAndModify', false);
+
+mongoose.connection.on('error', (err) => {
+  mongod = false
+  console.log(chalk.red(`[X] ${err}`))
+});
 
 const successResponse = (response, message = null, data = null) => {
   response.status(200).send({
@@ -91,9 +168,45 @@ router.get('/proof/data/:key', (request, response) => {
       })
 })
 
-router.post('/proof/', (request, response) => {
+
+
+const checkBody = (request, response, next) => {
   const { key, store } = request.body;
-  if(!key || !store) throw(`Body paramater 'key' or 'store' not sent`)
+  if(!key || !store) return errorResponse(response, `Body paramater 'key' or 'store' not sent`)
+  next()
+}
+
+const createLocalRecord = (request, response, next) => {
+  const { key, store } = request.body;
+  KeyStore.create({key, store})
+    .then(keystore => {
+      KeyStoreHistory.findOne({key})
+        .then(doc => {
+          if(!doc) {
+            const merkleRoot = merkleTree.createRoot(store)
+            KeyStoreHistory.create({key, merkleRoot, history: [keystore]})
+              .then(newDoc => {
+                next()
+              })
+          } else {
+            const left = doc.merkleRoot
+            const right = merkleTree.sha256(store)
+            const merkleRoot = merkleTree.appendRoot(left, right)
+            doc.merkleRoot = merkleRoot
+            doc.history.unshift(keystore)
+            doc.markModified('history')
+            doc.save()
+            next()
+          }
+
+        })
+    })
+    .catch(console.log)
+
+}
+
+router.post('/proof/', checkBody, createLocalRecord, (request, response) => {
+  const { key, store } = request.body;
   proof.set(key, store)
     .then(payload => {
       return successResponse(response, `CMD: set(${key}, ${store})`, {result: payload});
