@@ -1,6 +1,7 @@
 const dotenv = require('dotenv').config()
 const fs = require('fs')
 const path = require('path');
+const KeyStore = require('../models/KeyStore.js')
 
 class Proof {
   constructor(web3) {
@@ -70,11 +71,11 @@ class Proof {
     return new Promise((resolve, reject) => {
       setTimeout(()=>{
         resolve('timeout')
-      }, parseInt(process.env.TRANSACTION_TIMEOUT))
+      }, parseInt(process.env.TRANSACTION_TIMEOUT || 10000))
     })
   }
 
-  sendTransaction(payload) {
+  sendTransaction(payload, key) {
     return new Promise((resolve, reject) => {
       Promise.all([
         this.web3.eth.getGasPrice(),
@@ -97,14 +98,31 @@ class Proof {
 
         this.web3.eth.accounts.signTransaction(transactionParams, this.privateKey)
           .then(signedTransaction => {
+            console.log(signedTransaction)
             Promise.race([
               this.web3.eth.sendSignedTransaction(signedTransaction.rawTransaction),
               this.timeout()
             ])
             .then(receipt => {
               if(receipt === 'timeout') {
-                return reject('Timed out waiting for a receipt');
+                KeyStore.findOne({key})
+                  .then(doc=> {
+                    if(doc) {
+                      doc.success = false
+                      doc.transactionHash = ''
+                      doc.save()
+                    }
+                  })
+                return reject(`Timed out waiting for a receipt (tx hash: ${signedTransaction.rawTransaction})`);
               } else {
+                KeyStore.findOne({key})
+                  .then(doc=> {
+                    if(doc) {
+                      doc.success = true
+                      doc.transactionHash = signedTransaction.rawTransaction
+                      doc.save()
+                    }
+                  })
                 return resolve(receipt);
               }
             })
@@ -126,7 +144,7 @@ class Proof {
   set(key, store) {
     return new Promise((resolve, reject) => {
        const encodedABI = this.contract.methods.set(key, store).encodeABI()
-       this.sendTransaction(encodedABI)
+       this.sendTransaction(encodedABI, key)
         .then(receipt => {
           return resolve(receipt);
         })
