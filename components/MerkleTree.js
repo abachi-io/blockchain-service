@@ -1,6 +1,6 @@
 const crypto = require("crypto");
 
-class MarkelTree {
+class MerkleTree {
 
   sha256(data) {
     return crypto.createHash('sha256').update(data).digest('hex');
@@ -80,4 +80,4 @@ class MarkelTree {
 
 }
 
-module.exports = MarkelTree
+module.exports = MerkleTree
