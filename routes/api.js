@@ -20,7 +20,7 @@ const KeyStore = require('../models/KeyStore.js')
 const KeyStoreHistory = require('../models/KeyStoreHistory.js')
 
 
-router.get('/merkle/data/:key', (request, response) => {
+router.get('/database/data/:key', (request, response) => {
   const {key} = request.params
   KeyStoreHistory.findOne({key})
     .then(db => {
@@ -31,8 +31,7 @@ router.get('/merkle/data/:key', (request, response) => {
     })
 })
 
-router.get('/merkle/root/:key', (request, response) => {
-  console.log('lel')
+router.get('/database/root/:key', (request, response) => {
   const {key} = request.params
   KeyStoreHistory.findOne({key})
     .then(doc => {
@@ -48,12 +47,12 @@ router.post('/merkle/compare', (request, response) => {
 })
 
 router.post('/merkle/verify', (request, response) => {
-  const {hash}
+
 })
 
-router.get('/merkle/roots/:key', (request, response) => {
+router.get('/database/roots/:key', (request, response) => {
   const {key} = request.params
-  KeyStoreHistory.findOne({key})
+  KeyStoreHistory.findOne({key}).populate('history').exec()
     .then(doc => {
       let roots = []
       let hashes = []
@@ -65,7 +64,7 @@ router.get('/merkle/roots/:key', (request, response) => {
           roots.push(merkleTree.appendRoot(roots[roots.length-1], merkleTree.sha256(doc.history[i].store)))
         }
       }
-      return successResponse(response, `Returned Merkle Roots for key: '${key}'`, {merkleRoot: roots[roots.length-1], merkleRoots: roots, hashes})
+      return successResponse(response, `Returned Merkle Roots for key: '${key}'`, {calculatedMerkleRoot: roots[roots.length-1], storedMerkleRoot: doc.merkleRoot, merkleRoots: roots, hashes})
     })
     .catch(error => {
       return errorResponse(response, error.message || error);
@@ -74,7 +73,7 @@ router.get('/merkle/roots/:key', (request, response) => {
 
 //
 router.get('/db/all', (request, response) => {
-  KeyStoreHistory.find({})
+  KeyStoreHistory.find({}).populate('history').exec()
     .then(db => {
       return successResponse(response, 'pong', db)
     })
@@ -84,8 +83,18 @@ router.get('/db/all', (request, response) => {
 })
 
 router.delete('/db/all', (request, response) => {
-  KeyStoreHistory.deleteMany({})
-  KeyStore.deleteMany({})
+  Promise.all([
+    KeyStoreHistory.deleteMany({}),
+    KeyStore.deleteMany({}),
+  ])
+  .then(data => {
+    return successResponse(response, 'Deleted Databases', data)
+
+  })
+  .catch(error => {
+    return errorResponse(response, error.message || error);
+  })
+
 })
 
 //
@@ -180,11 +189,13 @@ const createLocalRecord = (request, response, next) => {
   const { key, store } = request.body;
   KeyStore.create({key, store})
     .then(keystore => {
+      console.log(`created keystore: ${keystore._id}`)
+      request.keyStoreId = keystore._id
       KeyStoreHistory.findOne({key})
         .then(doc => {
           if(!doc) {
             const merkleRoot = merkleTree.createRoot(store)
-            KeyStoreHistory.create({key, merkleRoot, history: [keystore]})
+            KeyStoreHistory.create({key, merkleRoot, history: [keystore._id]})
               .then(newDoc => {
                 next()
               })
@@ -193,13 +204,14 @@ const createLocalRecord = (request, response, next) => {
             const right = merkleTree.sha256(store)
             const merkleRoot = merkleTree.appendRoot(left, right)
             doc.merkleRoot = merkleRoot
-            doc.history.unshift(keystore)
+            doc.history.unshift(keystore._id)
             doc.markModified('history')
             doc.save()
             next()
           }
 
         })
+        .catch(console.log)
     })
     .catch(console.log)
 
@@ -207,7 +219,7 @@ const createLocalRecord = (request, response, next) => {
 
 router.post('/proof/', checkBody, createLocalRecord, (request, response) => {
   const { key, store } = request.body;
-  proof.set(key, store)
+  proof.set(key, store, request.keyStoreId)
     .then(payload => {
       return successResponse(response, `CMD: set(${key}, ${store})`, {result: payload});
     })
