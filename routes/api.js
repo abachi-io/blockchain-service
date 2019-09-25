@@ -189,7 +189,6 @@ const createLocalRecord = (request, response, next) => {
   const { key, store } = request.body;
   KeyStore.create({key, store})
     .then(keystore => {
-      console.log(`created keystore: ${keystore._id}`)
       request.keyStoreId = keystore._id
       KeyStoreHistory.findOne({key})
         .then(doc => {
