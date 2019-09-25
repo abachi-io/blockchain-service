@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const KeyStoreHistorySchema = new Schema({
   key: String,
   merkleRoot: String,
-  history: Array
+  history: [{ type: Schema.Types.ObjectId, ref: 'KeyStore' }]
 });
 
 KeyStoreHistorySchema.set('timestamps', true)
