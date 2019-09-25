@@ -82,10 +82,8 @@ class Proof {
           if(txpool.pending) {
             if(txpool.pending[this.publicKey]) {
               let pendingTransaction = txpool.pending[this.publicKey][`${nonce}`]
-              console.log('found', pendingTransaction.hash)
               resolve(pendingTransaction.hash)
             } else {
-              console.log('not fond')
               reject('')
             }
           } else {
@@ -97,11 +95,34 @@ class Proof {
           reject(error)
         })
     })
+  }
 
+  sendSignedTransaction(signedTransaction, _id) {
+    return new Promise((resolve, reject) => {
+      this.web3.eth.sendSignedTransaction(signedTransaction.rawTransaction)
+        .then(receipt => {
+          try {
+            receipt.transactionHash
+            KeyStore.findOne({_id})
+              .then(doc=> {
+                if(doc) {
+                  doc.success = true
+                  doc.transactionHash = receipt.transactionHash
+                  doc.save()
+                }
+              })
+          } catch (error) {
+            console.log(error)
+          }
+            resolve(receipt)
+        })
+        .catch(error => {
+          return reject(error)
+        })
+    })
   }
 
   sendTransaction(payload, _id) {
-    console.log(_id)
     return new Promise((resolve, reject) => {
       Promise.all([
         this.web3.eth.getGasPrice(),
@@ -125,7 +146,7 @@ class Proof {
         this.web3.eth.accounts.signTransaction(transactionParams, this.privateKey)
           .then(signedTransaction => {
             Promise.race([
-              this.web3.eth.sendSignedTransaction(signedTransaction.rawTransaction),
+              this.sendSignedTransaction(signedTransaction, _id),
               this.timeout()
             ])
             .then(receipt => {
@@ -135,22 +156,13 @@ class Proof {
                     const transactionHash = data[0]
                     const doc = data[1]
                     if(doc) {
-                      console.log(doc)
                       doc.success = false
                       doc.transactionHash = transactionHash
                       doc.save()
                     }
-                    return reject(`Timed out waiting for a receipt: TX hash: ${transactionHash}`);
+                    return reject(`Timed out waiting for a receipt for Tx: ${transactionHash}`);
                   })
               } else {
-                KeyStore.findOne({_id})
-                  .then(doc=> {
-                    if(doc) {
-                      doc.success = true
-                      doc.transactionHash = receipt.transactionHash
-                      doc.save()
-                    }
-                  })
                 return resolve(receipt);
               }
             })
