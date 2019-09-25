@@ -75,7 +75,33 @@ class Proof {
     })
   }
 
-  sendTransaction(payload, key) {
+  getPendingHash(nonce) {
+    return new Promise((resolve, reject) => {
+      this.web3.eth.txpool.content()
+        .then(txpool => {
+          if(txpool.pending) {
+            if(txpool.pending[this.publicKey]) {
+              let pendingTransaction = txpool.pending[this.publicKey][`${nonce}`]
+              console.log('found', pendingTransaction.hash)
+              resolve(pendingTransaction.hash)
+            } else {
+              console.log('not fond')
+              reject('')
+            }
+          } else {
+            reject('')
+          }
+        })
+        .catch(error => {
+          console.log(error)
+          reject(error)
+        })
+    })
+
+  }
+
+  sendTransaction(payload, _id) {
+    console.log(_id)
     return new Promise((resolve, reject) => {
       Promise.all([
         this.web3.eth.getGasPrice(),
@@ -98,28 +124,30 @@ class Proof {
 
         this.web3.eth.accounts.signTransaction(transactionParams, this.privateKey)
           .then(signedTransaction => {
-            console.log(signedTransaction)
             Promise.race([
               this.web3.eth.sendSignedTransaction(signedTransaction.rawTransaction),
               this.timeout()
             ])
             .then(receipt => {
               if(receipt === 'timeout') {
-                KeyStore.findOne({key})
-                  .then(doc=> {
+                Promise.all([this.getPendingHash(nonce), KeyStore.findOne({_id})])
+                  .then(data => {
+                    const transactionHash = data[0]
+                    const doc = data[1]
                     if(doc) {
+                      console.log(doc)
                       doc.success = false
-                      doc.transactionHash = ''
+                      doc.transactionHash = transactionHash
                       doc.save()
                     }
+                    return reject(`Timed out waiting for a receipt: TX hash: ${transactionHash}`);
                   })
-                return reject(`Timed out waiting for a receipt (tx hash: ${signedTransaction.rawTransaction})`);
               } else {
-                KeyStore.findOne({key})
+                KeyStore.findOne({_id})
                   .then(doc=> {
                     if(doc) {
                       doc.success = true
-                      doc.transactionHash = signedTransaction.rawTransaction
+                      doc.transactionHash = receipt.transactionHash
                       doc.save()
                     }
                   })
@@ -141,10 +169,10 @@ class Proof {
 
   }
 
-  set(key, store) {
+  set(key, store, keyStoreId) {
     return new Promise((resolve, reject) => {
        const encodedABI = this.contract.methods.set(key, store).encodeABI()
-       this.sendTransaction(encodedABI, key)
+       this.sendTransaction(encodedABI, keyStoreId)
         .then(receipt => {
           return resolve(receipt);
         })
