@@ -4,6 +4,23 @@
 
 This service is used for storing/retrieving hashes on the Ledgerium blockchain
 
+### How it works
+
+#### Traditional Merkle Tree
+
+![Merkle Tree](documentation/merkleTree.png?raw=true "Merkle Tree")
+
+Merkle trees are a fundamental part of blockchain technology. A merkle tree is a structure that allows for efficient and secure verification of content in a large body of data. These structures are used by both Bitcoin and Ethereum.
+
+#### Modified Concept
+
+![Merkle Chain](documentation/merkleChain.png?raw=true "Merkle Chain")
+
+
+We have used a modified version of the merkle tree to create a merkle chain, where a the previous change is the previous hash
+
+
+
 ## API Documentation
 
 * [Postman](https://documenter.getpostman.com/view/5312272/SVfUsmZ3?version=latest)
