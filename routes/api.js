@@ -20,18 +20,7 @@ const KeyStore = require('../models/KeyStore.js')
 const KeyStoreHistory = require('../models/KeyStoreHistory.js')
 
 
-router.get('/database/data/:key', (request, response) => {
-  const {key} = request.params
-  KeyStoreHistory.findOne({key})
-    .then(db => {
-      return successResponse(response, `Returned document for key '${key}'`, db)
-    })
-    .catch(error => {
-      return errorResponse(response, error.message || error);
-    })
-})
-
-router.get('/database/root/:key', (request, response) => {
+router.get('/merkle/root/:key', (request, response) => {
   const {key} = request.params
   KeyStoreHistory.findOne({key})
     .then(doc => {
@@ -42,15 +31,28 @@ router.get('/database/root/:key', (request, response) => {
     })
 })
 
-router.post('/merkle/compare', (request, response) => {
-
-})
-
 router.post('/merkle/verify', (request, response) => {
+  const {key, merkleRoot} = request.body
+  if(!key || !merkleRoot) return errorResponse(response, `Body paramater 'key' or 'merkleRoot' not sent`)
+  KeyStoreHistory.findOne({key})
+    .then(doc => {
+      if(!doc) return errorResponse(response, `Key provided '${key}', does not match any stored key`);
+      if(doc.merkleRoot === merkleRoot) {
+        return successResponse(response, `Merkle root provided: '${merkleRoot}' matches Merkle root saved: '${doc.merkleRoot}'`, doc.merkleRoot);
+      } else {
+        return errorResponse(response, `Merkle root provided: '${merkleRoot}' does NOT match Merkle root saved: '${doc.merkleRoot}'`);
+
+      }
+    })
+    .catch(error => {
+      console.log(error)
+      return errorResponse(response, error.message || error);
+    })
+
 
 })
 
-router.get('/database/roots/:key', (request, response) => {
+router.get('/merkle/roots/:key', (request, response) => {
   const {key} = request.params
   KeyStoreHistory.findOne({key}).populate('history').exec()
     .then(doc => {
