@@ -24,6 +24,7 @@ router.get('/merkle/root/:key', (request, response) => {
   const {key} = request.params
   KeyStoreHistory.findOne({key})
     .then(doc => {
+      if(!doc) return errorResponse(response, `Key provided '${key}', does not match any stored key`);
       return successResponse(response, `Returned Merkle Root for key: '${key}'`, doc.merkleRoot)
     })
     .catch(error => {
@@ -56,6 +57,7 @@ router.get('/merkle/roots/:key', (request, response) => {
   const {key} = request.params
   KeyStoreHistory.findOne({key}).populate('history').exec()
     .then(doc => {
+      if(!doc) return errorResponse(response, `Key provided '${key}', does not match any stored key`);
       let roots = []
       let hashes = []
       for(let i=doc.history.length-1; i>=0; i--) {
