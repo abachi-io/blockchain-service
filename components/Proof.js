@@ -52,14 +52,11 @@ class Proof {
           let transactionCount = data[1]
           if(txpool.pending) {
             if(txpool.pending[this.publicKey]) {
-              transactionCount += Object.keys(txpool.pending[this.publicKey]).length
-              resolve(transactionCount)
-            } else {
-              resolve(transactionCount)
+              const pendingNonces = Object.keys(txpool.pending[this.publicKey])
+              transactionCount = parseInt(pendingNonces[pendingNonces.length-1])+1
             }
-          } else {
-            resolve(transactionCount)
           }
+          resolve(transactionCount)
         })
         .catch(reject)
     })
@@ -178,7 +175,10 @@ class Proof {
         }
         return resolve(`Timed out waiting for a receipt for Tx: ${transactionHash}`);
       })
-      .catch(reject)
+      .catch(error => {
+        console.log(error)
+        resolve('nullPending')
+      })
     })
   }
 
