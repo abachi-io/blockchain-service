@@ -61,9 +61,7 @@ class Proof {
             resolve(transactionCount)
           }
         })
-        .catch(error => {
-          return reject(error)
-        })
+        .catch(reject)
     })
   }
 
@@ -90,10 +88,7 @@ class Proof {
             reject('')
           }
         })
-        .catch(error => {
-          console.log(error)
-          reject(error)
-        })
+        .catch(reject)
     })
   }
 
@@ -116,13 +111,11 @@ class Proof {
           }
             resolve(receipt)
         })
-        .catch(error => {
-          return reject(error)
-        })
+        .catch(reject)
     })
   }
 
-  sendTransaction(payload, _id) {
+  generateTransactionParams(payload) {
     return new Promise((resolve, reject) => {
       Promise.all([
         this.web3.eth.getGasPrice(),
@@ -142,89 +135,121 @@ class Proof {
           value: this.web3.utils.toHex(0),
           data: payload
         }
-
-        this.web3.eth.accounts.signTransaction(transactionParams, this.privateKey)
-          .then(signedTransaction => {
-            Promise.race([
-              this.sendSignedTransaction(signedTransaction, _id),
-              this.timeout()
-            ])
-            .then(receipt => {
-              if(receipt === 'timeout') {
-                Promise.all([this.getPendingHash(nonce), KeyStore.findOne({_id})])
-                  .then(data => {
-                    const transactionHash = data[0]
-                    const doc = data[1]
-                    if(doc) {
-                      doc.success = false
-                      doc.transactionHash = transactionHash
-                      doc.save()
-                    }
-                    return reject(`Timed out waiting for a receipt for Tx: ${transactionHash}`);
-                  })
-              } else {
-                return resolve(receipt);
-              }
-            })
-            .catch(error => {
-              return reject(error);
-            })
-          })
-          .catch(error => {
-            return reject(error);
-          })
+        resolve({transactionParams, nonce})
       })
-      .catch(error => {
-        return reject(error);
-      })
+      .catch(reject)
     })
+  }
 
+  signTransaction(transactionParams) {
+    return new Promise((resolve, reject) => {
+      this.web3.eth.accounts.signTransaction(transactionParams, this.privateKey)
+        .then(resolve)
+        .then(reject)
+    })
+  }
+
+  sendTransactionAndRaceTimeout(signedTransaction, _id) {
+    return new Promise((resolve, reject) => {
+      Promise.race([
+        this.sendSignedTransaction(signedTransaction, _id),
+        this.timeout()
+        ])
+        .then(resolve)
+        .catch(reject)
+    })
+  }
+
+  resolveTimedOutSetTransaction(nonce, _id) {
+    return new Promise((resolve, reject) => {
+      Promise.all([this.getPendingHash(nonce), KeyStore.findOne({_id})])
+      .then(data => {
+        const transactionHash = data[0]
+        const doc = data[1]
+        if(doc) {
+          doc.success = false
+          doc.transactionHash = transactionHash
+          doc.save()
+        }
+        return resolve(`Timed out waiting for a receipt for Tx: ${transactionHash}`);
+      })
+      .catch(reject)
+    })
+  }
+
+  // sendTransaction(payload, _id) {
+  //   return new Promise((resolve, reject) => {
+  //     this.generateTransactionParams(payload)
+  //       .then(data => {
+  //         this.signTransaction(data.transactionParams, this.privateKey)
+  //           .then(signedTransaction => {
+  //             this.sendTransactionAndRaceTimeout(signedTransaction, _id)
+  //               .then(receipt => {
+  //                 if(receipt === 'timeout') {
+  //                   this.resolveTimedOutSetTransaction(data.nonce, _id)
+  //                     .then(resolve)
+  //                     .catch(reject)
+  //                 } else {
+  //                   return resolve(receipt);
+  //                 }
+  //               })
+  //           .catch(reject)
+  //         })
+  //         .catch(reject)
+  //     })
+  //     .catch(reject)
+  //   })
+  // }
+
+  async sendTransaction(payload, _id) {
+    return new Promise( async(resolve, reject) => {
+      try {
+        const data = await this.generateTransactionParams(payload)
+        const {nonce, transactionParams} = data
+        const signedTransaction = await this.signTransaction(transactionParams, this.privateKey)
+        const receipt = await this.sendTransactionAndRaceTimeout(signedTransaction, _id)
+        if(receipt === 'timeout') {
+          const transactionHash = await this.resolveTimedOutSetTransaction(data.nonce, _id)
+          resolve(transactionHash)
+        } else {
+          resolve(receipt)
+        }
+      } catch (error) {
+        reject(error)
+      }
+    })
   }
 
   set(key, store, keyStoreId) {
     return new Promise((resolve, reject) => {
        const encodedABI = this.contract.methods.set(key, store).encodeABI()
-       this.sendTransaction(encodedABI, keyStoreId)
-        .then(receipt => {
-          return resolve(receipt);
-        })
-        .catch(error => {
-          return reject(error);
-        })
+       this.sendTransactionAsync(encodedABI, keyStoreId)
+        .then(resolve)
+        .catch(reject)
     })
   }
 
   get(key) {
     return new Promise((resolve, reject) => {
       this.contract.methods.get(key).call()
-        .then(result => {
-          resolve(result)
-        })
-        .catch(console.log)
+        .then(resolve)
+        .catch(reject)
     })
   }
 
   exists(key) {
     return new Promise((resolve, reject) => {
       this.contract.methods.exists(key).call()
-        .then(exists => {
-          return resolve(exists);
-        })
-        .catch(error => {
-          return reject(error);
-        })
+      .then(resolve)
+      .catch(reject)
     })
   }
 
   timestamp(key) {
     return new Promise((resolve, reject) => {
       this.contract.methods.timestamp(key).call()
-        .then(lastUpdated => {
-          return resolve(lastUpdated);
-        })
-        .catch(error => {
-          return reject(error);
-        })
+      .then(resolve)
+      .catch(reject)
     })
   }
 
@@ -232,12 +257,8 @@ class Proof {
     return new Promise((resolve, reject) => {
       const encodedABI = this.contract.methods.remove(key).encodeABI()
       this.sendTransaction(encodedABI)
-       .then(bool => {
-         return resolve(bool);
-       })
-       .catch(error => {
-         return reject(error);
-       })
+      .then(resolve)
+      .catch(reject)
     })
   }
 
