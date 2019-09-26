@@ -228,7 +228,7 @@ class Proof {
   set(key, store, keyStoreId) {
     return new Promise((resolve, reject) => {
        const encodedABI = this.contract.methods.set(key, store).encodeABI()
-       this.sendTransactionAsync(encodedABI, keyStoreId)
+       this.sendTransaction(encodedABI, keyStoreId)
         .then(resolve)
         .catch(reject)
     })
