@@ -79,13 +79,18 @@ class Proof {
         .then(txpool => {
           if(txpool.pending) {
             if(txpool.pending[this.publicKey]) {
-              let pendingTransaction = txpool.pending[this.publicKey][`${nonce}`]
-              resolve(pendingTransaction.hash)
+              if(txpool.pending[this.publicKey][`${nonce}`]) {
+                let pendingTransaction = txpool.pending[this.publicKey][`${nonce}`]
+                resolve(pendingTransaction.hash)
+              } else {
+                reject(`No pending transaction found for ${this.publicKey} at nonce ${nonce}`)
+              }
+
             } else {
-              reject('')
+              reject(`No pending transaction found for ${this.publicKey}`)
             }
           } else {
-            reject('')
+            reject('No pending transactions found')
           }
         })
         .catch(reject)
