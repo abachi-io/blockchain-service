@@ -10,12 +10,8 @@ This service is used for storing/retrieving hashes on the Ledgerium blockchain.
 
 ![Merkle Tree](documentation/merkleTree.png?raw=true "Merkle Tree")
 
-Merkle trees are a fundamental part of blockchain technology. A merkle tree is a structure that allows for efficient and secure verification of content in a large body of data. 
+Merkle trees are a fundamental part of blockchain technology. A merkle tree is a structure that allows for efficient and secure verification of content in a large body of data. Learn more about it [here](https://hackernoon.com/merkle-trees-181cb4bc30b4)
 
-* Data - Raw string
-* Leaves - `SHA-256` hash of data
-* Nodes - `SHA-256` hash of previous 2 leaves
-* Merkle Root - `SHA-256` hash of last 2 nodes
 
 #### Modified Concept
 
@@ -23,7 +19,6 @@ Merkle trees are a fundamental part of blockchain technology. A merkle tree is a
 
 
 We have used a modified version of the merkle tree to create a merkle chain.
-
 
 
 ## API Documentation
