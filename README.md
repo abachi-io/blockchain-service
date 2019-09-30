@@ -29,12 +29,12 @@ We have used a modified version of the merkle tree to create a merkle chain, whe
 
 ## Prerequisites
 
-* NodeJS [Download](https://nodejs.org/en/)
-* NPM (Node Package Manager) [Download](https://www.npmjs.com/get-npm)
+* [NodeJS ](https://nodejs.org/en/)
+* [NPM](https://www.npmjs.com/get-npm)
 
 **OR**
 
-* Docker [Download](https://www.docker.com/get-started)
+* [Docker](https://www.docker.com/get-started)
 
 ## Getting started
 
