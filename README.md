@@ -153,7 +153,7 @@ http://localhost9899/api/ping
 ```
 
 
-The server should reply back with
+Expected output:
 
 ```javascript
 {
