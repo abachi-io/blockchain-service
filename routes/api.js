@@ -171,6 +171,7 @@ router.get('/status', (request, response) => {
         endpoint: true,
         geth: true,
         mongod,
+        transactionTimeoutInterval: parseInt(process.env.TRANSACTION_TIMEOUT || 10000),
         txpool: {
           pending: parseInt(txpool.pending, 16) || 0,
           qued: parseInt(txpool, 16) || 0
@@ -182,6 +183,7 @@ router.get('/status', (request, response) => {
         endpoint: true,
         geth: false,
         mongod,
+        transactionTimeoutInterval: parseInt(process.env.TRANSACTION_TIMEOUT || 10000),
         txpool: {
           pending: parseInt('NA'),
           qued: parseInt('NA')
