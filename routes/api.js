@@ -49,8 +49,31 @@ router.post('/merkle/verify', (request, response) => {
       console.log(error)
       return errorResponse(response, error.message || error);
     })
+})
 
+router.post('/merkle/contains', (request, response) => {
+  const {key, hash} = request.body
+  if(!key || !hash) return errorResponse(response, `Body paramater 'key' or 'hash' not sent`)
+  KeyStoreHistory.findOne({key}).populate('history').exec()
+    .then(doc => {
+      if(!doc) return errorResponse(response, `Key provided '${key}', does not match any stored key`);
+      const history = doc.history
+      let hashes = []
+      for(let i=doc.history.length-1; i>=0; i--) {
+        hashes.push(merkleTree.sha256(doc.history[i].store))
+      }
 
+      if(hashes.includes(hash)) {
+        return successResponse(response, `'${hash}' was found in history for key: '${key}'` , true);
+      } else {
+        return successResponse(response, `${hash} was NOT found in ${key}` , false);
+      }
+
+    })
+    .catch(error => {
+      console.log(error)
+      return errorResponse(response, error.message || error);
+    })
 })
 
 router.get('/merkle/roots/:key', (request, response) => {
@@ -75,11 +98,11 @@ router.get('/merkle/roots/:key', (request, response) => {
     })
 })
 
-//
+
 router.get('/db/all', (request, response) => {
   KeyStoreHistory.find({}).populate('history').exec()
     .then(db => {
-      return successResponse(response, 'pong', db)
+      return successResponse(response, 'Get DB for: ALL', db)
     })
     .catch(error => {
       return errorResponse(response, error.message || error);
@@ -92,7 +115,7 @@ router.delete('/db/all', (request, response) => {
     KeyStore.deleteMany({}),
   ])
   .then(data => {
-    return successResponse(response, 'Deleted Databases', data)
+    return successResponse(response, 'Delete DB for: ALL', data)
 
   })
   .catch(error => {
