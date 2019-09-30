@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This service is used for storing/retrieving hashes on the Ledgerium blockchain
+This service is used for storing/retrieving hashes on the Ledgerium blockchain.
 
 ### How it works
 
@@ -10,19 +10,19 @@ This service is used for storing/retrieving hashes on the Ledgerium blockchain
 
 ![Merkle Tree](documentation/merkleTree.png?raw=true "Merkle Tree")
 
-Merkle trees are a fundamental part of blockchain technology. A merkle tree is a structure that allows for efficient and secure verification of content in a large body of data. These structures are used by both Bitcoin and Ethereum.
+Merkle trees are a fundamental part of blockchain technology. A merkle tree is a structure that allows for efficient and secure verification of content in a large body of data. 
 
 * Data - Raw string
 * Leaves - `SHA-256` hash of data
 * Nodes - `SHA-256` hash of previous 2 leaves
-* Merkle Root - `SHA-256` hash of last 2 nod2es
+* Merkle Root - `SHA-256` hash of last 2 nodes
 
 #### Modified Concept
 
 ![Merkle Chain](documentation/merkleChain.png?raw=true "Merkle Chain")
 
 
-We have used a modified version of the merkle tree to create a merkle chain, where a the previous change is the previous hash
+We have used a modified version of the merkle tree to create a merkle chain.
 
 
 
@@ -177,6 +177,6 @@ Expected output:
 
 ## How to Contribute
 
-1. Clone repo and create a new branch
-2. Make changes and test
-3. Submit Pull Request with comprehensive description of changes
+1. Clone the repo and create a new branch
+2. Make intended changes and test thoroughly  
+3. Submit a PR (pull request) with a comprehensive description of changes
