@@ -12,6 +12,11 @@ This service is used for storing/retrieving hashes on the Ledgerium blockchain
 
 Merkle trees are a fundamental part of blockchain technology. A merkle tree is a structure that allows for efficient and secure verification of content in a large body of data. These structures are used by both Bitcoin and Ethereum.
 
+* Data - Raw string
+* Leaves - `SHA-256` hash of data
+* Nodes - `SHA-256` hash of previous 2 leaves
+* Merkle Root - `SHA-256` hash of last 2 nod2es
+
 #### Modified Concept
 
 ![Merkle Chain](documentation/merkleChain.png?raw=true "Merkle Chain")
@@ -29,7 +34,7 @@ We have used a modified version of the merkle tree to create a merkle chain, whe
 
 ## Prerequisites
 
-* [NodeJS ](https://nodejs.org/en/)
+* [NodeJS](https://nodejs.org/en/)
 * [NPM](https://www.npmjs.com/get-npm)
 
 **OR**
@@ -58,14 +63,16 @@ cd blockchain-service
 Create a new file `.env`, open and add the following:
 
 ```
-WEB3_HTTP=http://testnet.ledgerium.net:8545
+WEB3_HTTP=http://toorak.ledgerium.io:8545/10/
 SERVER_PORT=9899
 PROOF_CONTRACT_ADDRESS=0xEFA87544B7a6975c715f94905697B854ed28B9A8
 PUBLIC_KEY=
 PRIVATE_KEY=
 ```
 
-You are responsible for filling `PUBLIC_KEY=` and `PRIVATE_KEY=` with your XLG address keys
+You are responsible for filling the following your own XLG wallet keys, e.g.
+- `PUBLIC_KEY=0x72Be32dF0c8d971eaD475C557345eF2551abBE99`
+- `PRIVATE_KEY=dfab1616fe38bab80e6c935119f8e3047443c07037b98450bc35beec8bd98759` 
 
 ### Run without Docker
 
