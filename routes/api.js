@@ -408,7 +408,7 @@ router.post('/hash', (request, response) => {
 
 
 
-router.get('/deploy/contract', (request, response) => {
+router.get('/deploy/contract/proof', (request, response) => {
         const encodedABI = proof.contract.deploy({ data : proof.bytecode}).encodeABI()
         Promise.all([
           web3.web3Http.eth.getGasPrice(),
