@@ -188,6 +188,7 @@ router.get('/status', (request, response) => {
         mongod,
         node: false,
         nodeURL: process.env.WEB3_HTTP,
+        nodeSynced: null,
         transactionTimeoutInterval: parseInt(process.env.TRANSACTION_TIMEOUT || 10000),
         txpool: {
           pending: parseInt('NA'),
