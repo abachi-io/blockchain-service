@@ -169,7 +169,8 @@ router.get('/status', (request, response) => {
     .then(txpool => {
       return successResponse(response, 'Health Check', {
         endpoint: true,
-        geth: true,
+        node: true,
+        nodeURL: process.env.WEB3_HTTP,
         mongod,
         transactionTimeoutInterval: parseInt(process.env.TRANSACTION_TIMEOUT || 10000),
         txpool: {
@@ -181,7 +182,8 @@ router.get('/status', (request, response) => {
     .catch(error => {
       return successResponse(response, 'Health Check', {
         endpoint: true,
-        geth: false,
+        node: false,
+        nodeURL: process.env.WEB3_HTTP,
         mongod,
         transactionTimeoutInterval: parseInt(process.env.TRANSACTION_TIMEOUT || 10000),
         txpool: {
