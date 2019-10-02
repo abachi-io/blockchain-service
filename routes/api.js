@@ -165,13 +165,15 @@ router.get('/ping', (request, response) => {
 })
 
 router.get('/status', (request, response) => {
-  web3.web3Http.eth.txpool.status()
-    .then(txpool => {
+  Promise.all([web3.web3Http.eth.txpool.status(), web3.web3Http.eth.isSyncing()])
+    .then(data => {
+      txpool = data[0]
       return successResponse(response, 'Health Check', {
         endpoint: true,
+        mongod,
         node: true,
         nodeURL: process.env.WEB3_HTTP,
-        mongod,
+        nodeSynced: !data[1],
         transactionTimeoutInterval: parseInt(process.env.TRANSACTION_TIMEOUT || 10000),
         txpool: {
           pending: parseInt(txpool.pending, 16) || 0,
@@ -180,11 +182,12 @@ router.get('/status', (request, response) => {
       });
     })
     .catch(error => {
+      console.log(error)
       return successResponse(response, 'Health Check', {
         endpoint: true,
+        mongod,
         node: false,
         nodeURL: process.env.WEB3_HTTP,
-        mongod,
         transactionTimeoutInterval: parseInt(process.env.TRANSACTION_TIMEOUT || 10000),
         txpool: {
           pending: parseInt('NA'),
