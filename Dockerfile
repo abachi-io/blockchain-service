@@ -1,13 +1,11 @@
 FROM node:10
 
-WORKDIR /usr/src/app
-
-COPY package*.json ./
+WORKDIR /blockchain-service
+ADD ./package.json /blockchain-service/package.json
+ADD ./package-lock.json /blockchain-service/package-lock.json
+ADD ./service.js /blockchain-service/service.js
+ADD ./lib /blockchain-service/lib
 
 RUN npm i
 
-COPY . .
-
-EXPOSE 9899
-
-CMD [ "node", "index.js" ]
+CMD ["node", "/blockchain-service/service.js"]

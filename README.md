@@ -2,7 +2,24 @@
 
 ## Introduction
 
-This service is used for storing/retrieving hashes on the Ledgerium blockchain
+This service is used for storing/retrieving hashes on the Ledgerium blockchain.
+
+### How it works
+
+#### Traditional Merkle Tree
+
+![Merkle Tree](documentation/merkleTree.png?raw=true "Merkle Tree")
+
+Merkle trees are a fundamental part of blockchain technology. A merkle tree is a structure that allows for efficient and secure verification of content in a large body of data. Learn more about it [here](https://hackernoon.com/merkle-trees-181cb4bc30b4)
+
+
+#### Modified Concept
+
+![Merkle Chain](documentation/merkleChain.png?raw=true "Merkle Chain")
+
+
+We have used a modified version of the merkle tree to create a merkle chain.
+
 
 ## API Documentation
 
@@ -12,12 +29,12 @@ This service is used for storing/retrieving hashes on the Ledgerium blockchain
 
 ## Prerequisites
 
-* NodeJS [Download](https://nodejs.org/en/)
-* NPM (Node Package Manager) [Download](https://www.npmjs.com/get-npm)
+* [NodeJS](https://nodejs.org/en/)
+* [NPM](https://www.npmjs.com/get-npm)
 
 **OR**
 
-* Docker [Download](https://www.docker.com/get-started)
+* [Docker](https://www.docker.com/get-started)
 
 ## Getting started
 
@@ -38,17 +55,23 @@ cd blockchain-service
 ### Create environment variables
 
 
-Create a new file `.env`, open and add the following:
+Create a file, `.env`, open and add the following:
+
 
 ```
-WEB3_HTTP=http://testnet.ledgerium.net:8545
-SERVER_PORT=9899
+WEB3_HTTP=http://toorak.ledgerium.io:8545/10/
 PROOF_CONTRACT_ADDRESS=0xEFA87544B7a6975c715f94905697B854ed28B9A8
 PUBLIC_KEY=
 PRIVATE_KEY=
 ```
 
-You are responsible for filling `PUBLIC_KEY=` and `PRIVATE_KEY=` with your XLG address keys
+You are responsible for filling the following your own XLG wallet keys, e.g:
+* `PUBLIC_KEY=0x72Be32dF0c8d971eaD475C557345eF2551abBE99`
+* `PRIVATE_KEY=dfab1616fe38bab80e6c935119f8e3047443c07037b98450bc35beec8bd98759`
+
+Optional:
+* `SERVER_PORT=9899`
+* `TRANSACTION_TIMEOUT=10000`
 
 ### Run without Docker
 
@@ -136,7 +159,7 @@ http://localhost9899/api/ping
 ```
 
 
-The server should reply back with
+Expected output:
 
 ```javascript
 {
@@ -149,6 +172,6 @@ The server should reply back with
 
 ## How to Contribute
 
-1. Clone repo and create a new branch
-2. Make changes and test
-3. Submit Pull Request with comprehensive description of changes
+1. Clone the repo and create a new branch
+2. Make intended changes and test thoroughly  
+3. Submit a PR (pull request) with a comprehensive description of changes
